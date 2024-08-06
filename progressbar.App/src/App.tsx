@@ -3,7 +3,9 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import ProTip from './ProTip';
-import  Progress from './components/Progress';
+import  InteractiveProgress from './components/InteractiveProgress';
+import SimpleProgress from './components/SimpleProgress';
+import CustomStyleProgress from './components/CustomStyleProgress';
 
 function Copyright() {
   return (
@@ -25,14 +27,14 @@ function Copyright() {
 
 export default function App() {
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-          Test Material Progress
+    <Container maxWidth="lg">
+      <Box sx={{ my: 4, textAlign: 'center'}}>
+        <Typography variant="h3" component="h2" sx={{ mb: 4 }}>
+          PoC Material Progress + Signal R
         </Typography>
-        <ProTip />
-        <Progress/>
-        <Copyright />
+        <InteractiveProgress/>
+        <SimpleProgress/>
+        <CustomStyleProgress/>
       </Box>
     </Container>
   );

@@ -1,0 +1,79 @@
+import * as React from "react";
+import Box from "@mui/material/Box";
+import LinearProgress, { linearProgressClasses } from "@mui/material/LinearProgress";
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import { Subject } from "rxjs";
+import { Button, styled, Typography } from "@mui/material";
+import axios from "axios";
+
+export type Message = {
+  progress: number;
+};
+
+const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+    height: 20,
+    borderRadius: 10,
+    [`&.${linearProgressClasses.colorPrimary}`]: {
+      backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
+    },
+    [`& .${linearProgressClasses.bar}`]: {
+      borderRadius: 5,
+      backgroundColor: theme.palette.mode === 'light' ? '#1a90ff' : '#308fe8',
+    },
+  }));
+
+export default function CustomStyleProgress() {
+  const [progress, setProgress] = React.useState(0);
+
+  React.useEffect(() => {
+    const subject: Subject<Message> = new Subject();
+
+    subject.subscribe((message: Message): void => {
+      setProgress(message.progress);
+      console.log(`Progress received: ${message.progress}`);
+    });
+
+    const connection: HubConnection = new HubConnectionBuilder()
+      .withUrl("http://localhost:5019/progress")
+      .build();
+
+    connection
+      .start()
+      .then(() => {
+        console.log("Conexion exitosa");
+      })
+      .catch((error) => console.error(error.message));
+
+    connection.on("sendMessage", (message: Message) => {
+      subject.next(message);
+    });
+
+    return () => {
+      connection.stop();
+    };
+  }, []);
+
+  const handleStart = async () => {
+    await axios.get("http://localhost:5019/api/task/start");
+  };
+
+  return (
+    <Box sx={{ width: "100%" }} mb={5}>
+      <Typography variant="h4">Custom Style</Typography>
+      <BorderLinearProgress 
+        variant="determinate"
+        value={progress}
+        sx={{ my: 2 }}
+        color="success"
+      />
+      <Box display="flex" alignItems="center" justifyContent="center">
+        <Button variant="contained" onClick={handleStart}>
+          Start task
+        </Button>
+        <Typography variant="h4" style={{ margin: "0 20px" }}>
+          {progress} %
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
